@@ -19,7 +19,7 @@ from sklearn.metrics import mean_squared_error
 import numpy as num
 
 
-dataset = pd.read_csv('household_power_consumption.csv') #uploading data form the drive
+dataset = pd.read_csv('household_power_consumption.csv')
 device = "cpu"
 
 """Source: https://pytorch.org/tutorials/beginner/basics/quickstart_tutorial.html"""
@@ -41,8 +41,8 @@ print(dataset.head())
 
 # Select additional columns as input features
 additional_columns = ['Global_reactive_power','Voltage','Global_intensity']
-X = dataset[additional_columns]
-y = dataset['Global_active_power']  # Target variable
+X = dataset[additional_columns] # input data set
+y = dataset['Global_active_power']  # Target variable (ouput data set)
 X = torch.tensor(X.values,dtype=torch.float32)
 y = torch.tensor(y.values, dtype=torch.float32)
 
@@ -51,11 +51,11 @@ X_train, X_test, y_train, y_test = train_test_split(X, y, test_size=0.3, random_
 
 # Normalize the input features & output
 scaler = MinMaxScaler()
-X_train = scaler.fit_transform(X_train)
+X_train = scaler.fit_transform(X_train) #normalise data
 X_train = torch.tensor(X_train,dtype=torch.float32)
 X_test = scaler.fit_transform(X_test)
 X_test = torch.tensor(X_test,dtype=torch.float32)
-y_train = y_train.view(y_train.shape[0], 1)
+y_train = y_train.view(y_train.shape[0], 1) #change output tensor layout
 y_test = y_test.view(y_test.shape[0], 1)
 
 class NeuralNetwork(nn.Module):
@@ -63,13 +63,13 @@ class NeuralNetwork(nn.Module):
         super(NeuralNetwork, self).__init__()
         self.flatten = nn.Flatten()
         self.layers = nn.Sequential(
-            nn.Linear(input_size, hidden_size),
-            nn.ReLU(),
+            nn.Linear(input_size, hidden_size), #input layer -> hidden layer
+            nn.ReLU(), #activation function
             # nn.Linear(hidden_size, hidden_size),
             # nn.ReLU(),
             # nn.Linear(hidden_size, hidden_size),
             # nn.ReLU(),
-            nn.Linear(hidden_size, output_size),
+            nn.Linear(hidden_size, output_size), #hidden layer -> output layer
         )
 
     def forward(self, x):
@@ -77,14 +77,14 @@ class NeuralNetwork(nn.Module):
         y = self.layers(x)
         return y
 
-input_size = X.size(dim = 1)
+input_size = X.size(dim = 1) #set input layer size (amount of input layer variables)
 hidden_sizes = [50, 150, 250, 350, 500, 1000] #amount of neurons per layer
 output_size = 1
 
 epochs = 300 # Number of iterations of the training loop
 for hidden_size in hidden_sizes:
 
-    net = NeuralNetwork().to(device)
+    net = NeuralNetwork().to(device) #create neural network
     print(net)
 
     # Define loss function and optimizer
@@ -92,7 +92,6 @@ for hidden_size in hidden_sizes:
     optimizer = optim.SGD(net.parameters(), lr=0.01) #low rate lr (to recheck)
 
     # Training loop
-    net.train()
     test_loss_array = []
     for epoch in range(epochs):
         ### Training
@@ -101,8 +100,8 @@ for hidden_size in hidden_sizes:
 
         net.train()
 
-        y_pred = net(X_train)
-        loss = criterion(y_pred, y_train)
+        y_pred = net(X_train) #output prediction
+        loss = criterion(y_pred, y_train) #MSE
         optimizer.zero_grad() # Avoid accumulation of gradients from previous iterations
         loss.backward() # Compute the gradient
         optimizer.step() # Set the new weights of the model as a function of the gradient
@@ -115,7 +114,7 @@ for hidden_size in hidden_sizes:
             test_pred = net(X_test)
             test_loss = criterion(test_pred, y_test)
 
-        test_loss_array.append(test_loss)
+        test_loss_array.append(test_loss) #get MSE from testing
     # for epoch in range(num_epochs):
     #     ### Training
     #     # Put the model in training mode

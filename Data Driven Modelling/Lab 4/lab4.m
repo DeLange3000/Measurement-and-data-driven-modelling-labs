@@ -7,8 +7,8 @@ clear
 %variables
 length_impulse_response = 30; % length of the impulse response before it becomes neglegably small
 nr_range = 100; % maximum order used for estimation
-snr_dB = [600 60 6]; % for 3.5 make 6 -> 26
-loop_length = 100; %set to 1 for everything before 3.6
+snr_dB = [600 60 26]; % for 3.5 make 6 -> 26
+loop_length = 1; %100; %set to 1 for everything before 3.6
 
 [B, A] = cheby2(2, 3, [0.3 0.6], "bandpass"); % for 3.5 change to [0.4 0.6]?
 F0 = tf(B, A, 1); % get discrete transfer function of the filter
@@ -104,7 +104,7 @@ for a = 1:loop_length % part 3.6
     
     % store data to plot in histogram
     V_ls_avg(:,:,a) = V_ls;
-     V_val_avg(:,:,a) = V_val;
+    V_val_avg(:,:,a) = V_val;
 
     
     %% 3.4 Select the optimal model order using AIC and Validation
@@ -127,10 +127,12 @@ end
     % plot least squares, validation and AIC
     figure
     hold on
-    plot(V_ls_avg(3, :,1))
-    plot(V_val_avg(3, :, 1))
-    plot(V_aic_avg(3,:, 1))
+    plot((V_ls_avg(3, :,1))) % 3 is for wanted snr lvl
+    plot((V_val_avg(3, :, 1)))
+    plot((V_aic_avg(3,:, 1)))
     legend('V_{ls}', 'V_{val}', 'V_{aic}')
+    xlabel('Order n')
+    ylabel('Cost function value')
 
     % calculates the order for which the curves are minimal
     disp('Minimum for Least Squares: ')
